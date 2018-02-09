@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
     do{
         token = yylex();
         if(token == 999){
-            printf("ERROR: Invalid Token");
+            printf("Error: invalid lexeme '%s'.\n", yytext);
             token = 0;
         }
         else{
