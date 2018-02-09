@@ -9,9 +9,9 @@ TAB "\t"
 
 %%
 
-"%".* /*ignore comment*/
+"%".* {/*ignore comment*/}
 
-" "+ /*ignore whitespace*/
+[ \t]+ {/*ignore whitespace*/}
 
 [0-9]*[.][0-9]+ {return 101;}
 
@@ -69,14 +69,24 @@ TAB "\t"
 
 [_A-Za-z][_A-Za-z0-9]* {return 100;}
 
+. {return 999;}
+
 %%
 
 int main(int argc, char *argv[]){
     extern FILE *yyin;
-    yyin = fopen(argv[0], "r");
+    int token;
+    yyin = fopen(argv[1], "r");
+    printf("%c", argv[0]);
     do{
-        int token = yylex();
-        printf("\n%d\n", token);
-    }while(!yywrap());
+        token = yylex();
+        if(token == 999){
+            printf("ERROR: Invalid Token");
+            token = 0;
+        }
+        else{
+            printf("\n%d\n", token);
+        }
+    }while(token != 0);
     return 0;
 }

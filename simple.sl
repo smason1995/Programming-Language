@@ -1,2 +1,2 @@
 %very simple program
-print 1.0 + 1.0
+print 1 + 1
