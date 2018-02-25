@@ -79,18 +79,18 @@
 
     double result = 0;
 
-    typedef struct Node{
+    typedef struct node{
         int type;
         double data;
         char id[SIZE];
-        int chldrn_num;
-        Node* chldrn[CHLDRN];
-    };
+        int children_num;
+        struct node* children[CHLDRN];
+    }Node;
 
-    typedef struct Symbol{
+    typedef struct{
         char name[SIZE];
         double data;
-    };
+    }Symbol;
 
     Node* tree;
     Node* part1;

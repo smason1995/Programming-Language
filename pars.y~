@@ -94,7 +94,7 @@
 %token IDENTIFIER
 
 /* types */
-%type <node> tree stmt stmts expr pers term1 term2 term3 term4 term5 term6
+%type <dval> tree stmt stmts expr pers term1 term2 term3 term4 term5 term6
 
 /*error messages */
 %error-verbose
