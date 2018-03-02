@@ -1,5 +1,6 @@
 %{
     #include<stdio.h>
+    #include "pars.tab.h"
 %}
 
 %option noyywrap
@@ -12,6 +13,8 @@ TAB "\t"
 "%".* {/*ignore comment*/}
 
 [ \t]+ {/*ignore whitespace*/}
+
+[0-9]+ {return 101;}
 
 [0-9]*[.][0-9]+ {return 101;}
 
