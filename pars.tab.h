@@ -62,9 +62,8 @@ extern int yydebug;
     NOT = 114,
     VAR = 100,
     VAL = 101,
-    DONE = 115,
     IS = 116,
-    BEGIN = 119,
+    BEGIN_BEGIN = 119,
     END = 120,
     IF = 121,
     THEN = 122,
@@ -85,13 +84,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 47 "pars.y" /* yacc.c:1909  */
+#line 48 "pars.y" /* yacc.c:1909  */
 
     char vname[50];
     double dval;
-    Node* node;
+    struct node* node;
 
-#line 95 "pars.tab.h" /* yacc.c:1909  */
+#line 94 "pars.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

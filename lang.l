@@ -75,21 +75,3 @@ TAB "\t"
 . {return 999;}
 
 %%
-
-int main(int argc, char *argv[]){
-    extern FILE *yyin;
-    int token;
-    yyin = fopen(argv[1], "r");
-    printf("%c", argv[0]);
-    do{
-        token = yylex();
-        if(token == 999){
-            printf("Error: invalid lexeme '%s'.\n", yytext);
-            token = 0;
-        }
-        else{
-            printf("\n%d\n", token);
-        }
-    }while(token != 0);
-    return 0;
-}

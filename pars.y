@@ -2,6 +2,7 @@
     #include<stdio.h>
     #include<stdlib.h>
     #include<assert.h>
+    #include<string.h>
 
     #define SIZE 50
     #define CHLDRN 3
@@ -20,24 +21,24 @@
         char id[SIZE];
         int children_num;
         struct node* children[CHLDRN];
-    }Node;
+    };
 
     typedef struct{
         char name[SIZE];
         double data;
     }Symbol;
 
-    Node* tree;
-    Node* part1;
-    Node* part2;
-    Node* if_stmt;
+    struct node* tree;
+    struct node* part1;
+    struct node* part2;
+    struct node* if_stmt;
     Symbol table[100];
 
-    void attach(Node*, Node*);
+    void attach(struct node*, struct node*);
 
-    Node* make(int, double,char*);
+    struct node* make(int, double,char*);
 
-    void use(Node*);
+    void use(struct node*);
 
     void add(char*, double);
 
@@ -47,7 +48,7 @@
 %union{
     char vname[50];
     double dval;
-    Node* node;
+    struct node* node;
 }
 
 /* operators */
@@ -75,11 +76,10 @@
 %token AND 112
 %token OR 113
 %token NOT 114
-%token DONE 115
 %token IS 116
 %token OPEN_PARENS 117
 %token CLOSE_PARENS 118
-%token BEGIN 119
+%token BEGIN_BEGIN 119
 %token END 120
 %token IF 121
 %token THEN 122
@@ -118,7 +118,7 @@ stmt: stmts stmt{
     | {$$ = NULL;}
 
 /* ':=' operator */
-stmts: expr IS expr DONE{
+stmts: expr IS expr {
         $$ = make(ASSIGN, 0, "");
         attach($$, $1);
         attach($$, $3);
@@ -156,13 +156,13 @@ stmts: WHILE expr DO stmts{
     }
 
 /* 'print' statments */
-stmts: PRINT expr DONE{
+stmts: PRINT expr {
         $$ = make(PRINT, 0, "");
         attach($$, $2);
     }
 
 /* 'begin-end' blocks */
-stmts: BEGIN stmt END{
+stmts: BEGIN_BEGIN stmt END{
         $$ = $2;
     }
 
@@ -459,27 +459,27 @@ void yyerror(const char* str){
     fprintf(stderr, "Error: '%s'.\n", str);
 }
 
-struct Node* make(int type, double value, char* id) {
+struct node* make(int type, double value, char* id) {
     int i;
 
-    struct Node* node = malloc(sizeof(struct Node));
+    struct node* node = malloc(sizeof(struct node));
 
     node->type = type;
-    node->value = value;
+    node->data = value;
     strcpy(node->id, id);
-    node->num_children = 0;
-    for(i = 0; i < MAX_CHILDREN; i++) {
+    node->children_num = 0;
+    for(i = 0; i < CHLDRN; i++) {
         node->children[i] = NULL;
     }
 
     return node;
 }
 
-void attach(struct Node* parent, struct Node* child) {
+void attach(struct node* parent, struct node* child) {
   /* connect it */
-    parent->children[parent->num_children] = child;
-    parent->num_children++;
-    assert(parent->num_children <= MAX_CHILDREN);
+    parent->children[parent->children_num] = child;
+    parent->children_num++;
+    assert(parent->children_num <= CHLDRN);
 }
 
 
@@ -487,14 +487,14 @@ double get(char* name){
     int i;
     for(i = 0; i<numSymbols; i++){
         if((!strcmp(table[i].name, name)) > 0){
-            return table[i].value;                        
+            return table[i].data;                        
 		}
 	}
 }
 
 void add(char* name, double value){
     strcpy(table[numSymbols].name, name);
-    table[numSymbols].value = value;
+    table[numSymbols].data = value;
     numSymbols++;
 }
 
@@ -508,7 +508,7 @@ int inTable(char* name){
 	return -1;
 }
 
-double evalExpression(struct Node* node){
+double evalExpression(struct node* node){
     int b;
     double z[2];
     double d;
@@ -517,82 +517,82 @@ double evalExpression(struct Node* node){
                 return get(node->id);
                 break;
         case VAL: 
-                return node->value;
+                return node->data;
                 break;
         case PLUS: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return z[0] + z[1];
                 break;
         case MINUS: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return z[0] - z[1];
                 break;
         case DIVIDE: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return z[0] / z[1];
                 break;
         case TIMES: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return z[0] * z[1];
                 break;
         case LT: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] < z[1]);
                 break;
         case GT: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] > z[1]);
                 break;
         case LTE: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] <= z[1]);
                 break;
         case GTE: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] >= z[1]);
                 break;
         case EQUALS:
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] == z[1]);
                 break;
         case NE: 
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] != z[1]);
                 break;
         case AND:
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] && z[1]);
                 break;
         case OR:
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return (z[0] || z[1]);
                 break;
         case NOT:
-                for(b=0; b<node->num_children; b++){
+                for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
                 }
                 return !z[0];
@@ -608,7 +608,7 @@ double evalExpression(struct Node* node){
     }
 }
         
-void evalStatement(struct Node* node){
+void evalStatement(struct node* node){
 	int x;
         switch(node->type){
             case PRINT:  
@@ -623,7 +623,7 @@ void evalStatement(struct Node* node){
 		        }
 		        break;
 	        case STATEMENT:
-		        for(x=0; x < node->num_children; x++){
+		        for(x=0; x < node->children_num; x++){
 			        if(node->children[x] != NULL){
 				        evalStatement(node->children[x]);
 			        }
@@ -636,7 +636,7 @@ void evalStatement(struct Node* node){
 		        break;
 	        case ASSIGN:
 		        if((x = inTable(node->children[0]->id)) >= 0){
-			        table[x].value = evalExpression(node->children[1]);
+			        table[x].data = evalExpression(node->children[1]);
 		        }
 		        else{
 			        add(node->children[0]->id, evalExpression(node->children[1]));
@@ -650,7 +650,7 @@ void evalStatement(struct Node* node){
     }
 
         
-void use(struct Node* node){
+void use(struct node* node){
     if(!node) return;
   
     if(node->type == STATEMENT){
@@ -667,11 +667,11 @@ void use(struct Node* node){
 }
 
 int main(int argc, char *argv[]){
-    extern FILE *yyin;
+    extern FILE *stdin;
 
-    yyin = fopen(argv[1], "r");
+    stdin = fopen(argv[1], "r");
     yyparse();
-    fclose(yyin);
+    fclose(stdin);
     use(tree);
     return 0;
 }
