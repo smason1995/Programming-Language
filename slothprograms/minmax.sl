@@ -19,7 +19,7 @@ while N > 0 do begin
 
   % keep counting
   N := N - 1;
-end
+$end
 
 % print the min and max
 print min;

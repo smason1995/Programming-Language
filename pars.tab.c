@@ -86,7 +86,7 @@
         char id[SIZE];
         int children_num;
         struct node* children[CHLDRN];
-    };
+    }node;
 
     typedef struct{
         char name[SIZE];
@@ -2457,6 +2457,7 @@ double evalExpression(struct node* node){
                 return get(node->id);
                 break;
         case VAL: 
+                printf("\n%9.6f\n",node->data);
                 return node->data;
                 break;
         case PLUS: 
