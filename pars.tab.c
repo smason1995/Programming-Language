@@ -2422,7 +2422,6 @@ void attach(struct node* parent, struct node* child) {
     assert(parent->children_num <= CHLDRN);
 }
 
-
 double get(char* name){
     int i;
     for(i = 0; i<numSymbols; i++){
@@ -2457,7 +2456,6 @@ double evalExpression(struct node* node){
                 return get(node->id);
                 break;
         case VAL: 
-                printf("\n%9.6f\n",node->data);
                 return node->data;
                 break;
         case PLUS: 
