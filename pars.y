@@ -21,7 +21,11 @@
         char id[SIZE];
         int children_num;
         struct node* children[CHLDRN];
+<<<<<<< HEAD
     }node;
+=======
+    };
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
 
     typedef struct{
         char name[SIZE];
@@ -76,10 +80,18 @@
 %token AND 112
 %token OR 113
 %token NOT 114
+<<<<<<< HEAD
 %token IS 116
 %token OPEN_PARENS 117
 %token CLOSE_PARENS 118
 %token BEGIN_BEGIN 119
+=======
+%token DONE 115
+%token IS 116
+%token OPEN_PARENS 117
+%token CLOSE_PARENS 118
+%token BEGIN 119
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
 %token END 120
 %token IF 121
 %token THEN 122
@@ -118,7 +130,11 @@ stmt: stmts stmt{
     | {$$ = NULL;}
 
 /* ':=' operator */
+<<<<<<< HEAD
 stmts: expr IS expr {
+=======
+stmts: expr IS expr DONE{
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
         $$ = make(ASSIGN, 0, "");
         attach($$, $1);
         attach($$, $3);
@@ -156,13 +172,21 @@ stmts: WHILE expr DO stmts{
     }
 
 /* 'print' statments */
+<<<<<<< HEAD
 stmts: PRINT expr {
+=======
+stmts: PRINT expr DONE{
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
         $$ = make(PRINT, 0, "");
         attach($$, $2);
     }
 
 /* 'begin-end' blocks */
+<<<<<<< HEAD
 stmts: BEGIN_BEGIN stmt END{
+=======
+stmts: BEGIN stmt END{
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
         $$ = $2;
     }
 
@@ -517,7 +541,10 @@ double evalExpression(struct node* node){
                 return get(node->id);
                 break;
         case VAL: 
+<<<<<<< HEAD
                 printf("\n%9.6f\n",node->data);
+=======
+>>>>>>> cadac23c9847b5acd016b5bc47a8a4ed05210f99
                 return node->data;
                 break;
         case PLUS: 
