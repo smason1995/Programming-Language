@@ -14,4 +14,4 @@ pars.tab.c:
 	bison -d pars.y
 
 clean:
-	rm sloth lang.lex.c lang.o pars.tab.*
+	rm sloth lang.lex.* lang.o pars.tab.*

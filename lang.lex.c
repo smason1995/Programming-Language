@@ -785,12 +785,12 @@ YY_RULE_SETUP
 case 3:
 YY_RULE_SETUP
 #line 17 "lang.l"
-{return 101;}
+{yylval.dval = atof(yytext); return 101;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 19 "lang.l"
-{return 101;}
+{yylval.dval = atof(yytext); return 101;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP

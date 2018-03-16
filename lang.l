@@ -14,9 +14,9 @@ TAB "\t"
 
 [ \t]+ {/*ignore whitespace*/}
 
-[0-9]+ {return 101;}
+[0-9]+ {yylval.dval = atof(yytext); return 101;}
 
-[0-9]*[.][0-9]+ {return 101;}
+[0-9]*[.][0-9]+ {yylval.dval = atof(yytext); return 101;}
 
 "+" {return 102;}
 
