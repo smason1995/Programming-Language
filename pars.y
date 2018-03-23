@@ -1,4 +1,5 @@
 %{
+    /* imported libraries */
     #include<stdio.h>
     #include<stdlib.h>
     #include<assert.h>
@@ -15,6 +16,7 @@
 
     double result = 0;
 
+    /* node structure */
     typedef struct node{
         int type;
         double data;
@@ -23,6 +25,7 @@
         struct node* children[CHLDRN];
     }node;
 
+    /* symbol structure */
     typedef struct{
         char name[SIZE];
         double data;
@@ -34,6 +37,7 @@
     struct node* if_stmt;
     Symbol table[100];
 
+    /* predeclared functions */
     void attach(struct node*, struct node*);
 
     struct node* make(int, double,char*);
@@ -76,6 +80,7 @@
 %token AND 112
 %token OR 113
 %token NOT 114
+%token SEMI 115
 %token IS 116
 %token OPEN_PARENS 117
 %token CLOSE_PARENS 118
@@ -105,7 +110,7 @@
 tree: stmt {tree = $$;}
 
 /* statement */
-stmt: stmts stmt{
+stmt: stmts stmt {
         if(first == 0){
             $$ = make(STATEMENT, 0, "");
             attach($$, $1);
@@ -118,7 +123,7 @@ stmt: stmts stmt{
     | {$$ = NULL;}
 
 /* ':=' operator */
-stmts: expr IS expr {
+stmts: expr IS expr SEMI {
         $$ = make(ASSIGN, 0, "");
         attach($$, $1);
         attach($$, $3);
@@ -156,7 +161,7 @@ stmts: WHILE expr DO stmts{
     }
 
 /* 'print' statments */
-stmts: PRINT expr {
+stmts: PRINT expr SEMI{
         $$ = make(PRINT, 0, "");
         attach($$, $2);
     }
@@ -455,10 +460,16 @@ int yywrap(){
     return 1;
 }
 
+/*
+ * Prints syntactical errors that occur during parsing
+ */
 void yyerror(const char* str){
     fprintf(stderr, "Error: '%s'.\n", str);
 }
 
+/*
+ * Makes a new tree node for new tree element
+ */
 struct node* make(int type, double value, char* id) {
     int i;
 
@@ -475,6 +486,9 @@ struct node* make(int type, double value, char* id) {
     return node;
 }
 
+/*
+ * Attaches child to parent
+ */
 void attach(struct node* parent, struct node* child) {
   /* connect it */
     parent->children[parent->children_num] = child;
@@ -482,15 +496,21 @@ void attach(struct node* parent, struct node* child) {
     assert(parent->children_num <= CHLDRN);
 }
 
+/*
+ * Returns table element data value
+ */
 double get(char* name){
     int i;
     for(i = 0; i<numSymbols; i++){
-        if((!strcmp(table[i].name, name)) > 0){
+        if((!strcmp(table[i].name, name))){
             return table[i].data;                        
 		}
 	}
 }
 
+/*
+ * Adds data to table elements
+ */
 void add(char* name, double value){
     strcpy(table[numSymbols].name, name);
     table[numSymbols].data = value;
@@ -500,13 +520,16 @@ void add(char* name, double value){
 int inTable(char* name){
     int x;
     for(x=0; x<numSymbols; x++){
-	    if((!strcmp(table[x].name, name))>0 ){
+	    if((!strcmp(table[x].name, name))){
 		    return x;
 		}
     }
 	return -1;
 }
 
+/*
+ * Processes statements that need to return things
+ */
 double evalExpression(struct node* node){
     int b;
     double z[2];
@@ -607,48 +630,54 @@ double evalExpression(struct node* node){
     }
 }
         
+/*
+ * Evaluates statements that do not need to return anything
+ */
 void evalStatement(struct node* node){
 	int x;
-        switch(node->type){
-            case PRINT:  
-                printf("%9.6f\n",evalExpression(node->children[0]));
-                break;
-            case IF: 
-		        if(evalExpression(node->children[0])){
-			        evalStatement(node->children[1]);
-		        }
-		        else if(node->children[2] != NULL){
-			        evalStatement(node->children[2]);
-		        }
-		        break;
-	        case STATEMENT:
-		        for(x=0; x < node->children_num; x++){
-			        if(node->children[x] != NULL){
-				        evalStatement(node->children[x]);
-			        }
-		        }
-		        break;
-	        case WHILE: 
-		        while(evalExpression(node->children[0])){
-			        evalStatement(node->children[1]);
-		        }
-		        break;
-	        case ASSIGN:
-		        if((x = inTable(node->children[0]->id)) >= 0){
-			        table[x].data = evalExpression(node->children[1]);
-		        }
-		        else{
-			        add(node->children[0]->id, evalExpression(node->children[1]));
-		        }
-		        break;
-	
-	        default:
-      		    printf("Error, %d not a valid node type for a statement.\n", node->type);
-      		    exit(1);
-	    }
+    switch(node->type){
+        case PRINT:  
+            printf("%9.6f\n",evalExpression(node->children[0]));
+            break;
+        case IF: 
+            if(evalExpression(node->children[0])){
+                evalStatement(node->children[1]);
+            }
+            else if(node->children[2] != NULL){
+                evalStatement(node->children[2]);
+            }
+            break;
+        case STATEMENT:
+            for(x=0; x < node->children_num; x++){
+                if(node->children[x] != NULL){
+                    evalStatement(node->children[x]);
+                }
+            }
+            break;
+        case WHILE: 
+            while(evalExpression(node->children[0])){
+                evalStatement(node->children[1]);
+            }
+            break;
+        case ASSIGN:
+            if((x = inTable(node->children[0]->id)) >= 0){
+                table[x].data = evalExpression(node->children[1]);
+            }
+            else{
+                add(node->children[0]->id, evalExpression(node->children[1]));
+            }
+            break;
+
+        default:
+            printf("Error, %d not a valid node type for a statement.\n", node->type);
+            exit(1);
     }
+}
 
         
+/*
+ * Calls appropriate statement evaluator
+ */
 void use(struct node* node){
     if(!node) return;
   
@@ -665,12 +694,19 @@ void use(struct node* node){
     }
 }
 
+/*
+ * Main function
+ */
 int main(int argc, char *argv[]){
     extern FILE *stdin;
+    FILE* oldstdin;
+    
+    oldstdin = stdin;
 
     stdin = fopen(argv[1], "r");
     yyparse();
     fclose(stdin);
+    stdin = oldstdin;
     use(tree);
     return 0;
 }

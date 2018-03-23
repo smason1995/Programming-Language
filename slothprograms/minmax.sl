@@ -2,8 +2,11 @@
 
 % get the amount of numbers to input
 N := input;
+print N;
 min := 99999999;
 max := 0 - 99999999;
+
+print N;
 
 while N > 0 do begin
   % get the next number
@@ -19,7 +22,7 @@ while N > 0 do begin
 
   % keep counting
   N := N - 1;
-$end
+end
 
 % print the min and max
 print min;

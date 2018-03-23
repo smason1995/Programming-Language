@@ -12,7 +12,7 @@ TAB "\t"
 
 "%".* {/*ignore comment*/}
 
-[ \t]+ {/*ignore whitespace*/}
+[ \t\n]+ {/*ignore whitespace*/}
 
 [0-9]+ {yylval.dval = atof(yytext); return 101;}
 
@@ -70,7 +70,7 @@ TAB "\t"
 
 "input" {return 127;}
 
-[_A-Za-z][_A-Za-z0-9]* {return 100;}
+[_A-Za-z][_A-Za-z0-9]* {strcpy(yylval.vname, yytext); return 100;}
 
 . {return 999;}
 
