@@ -16,10 +16,18 @@
 
     double result = 0;
 
+    short isStr = 0; //is 1 if string, else 0
+
+    typedef union{
+        double numval;
+        char strval[7146];
+    }data;
+
     /* node structure */
     typedef struct node{
         int type;
         double data;
+//        data* value;
         char id[SIZE];
         int children_num;
         struct node* children[CHLDRN];
@@ -53,6 +61,7 @@
     char vname[50];
     double dval;
     struct node* node;
+    char strvar [7146];
 }
 
 /* operators */
@@ -93,6 +102,7 @@
 %token DO 125
 %token PRINT 126
 %token <dval> INPUT 127
+%token <strvar> STRING 128
 %token INVALID 999
 %token STATEMENT
 %token ASSIGN
@@ -197,9 +207,7 @@ pers: pers OR term1{
         attach($$, $6);
     }
     |term1{$$ = $1;}
-
-/* '&&' operator */
-term1: term1 AND term2{
+/* '&&' operator */ term1: term1 AND term2{
         $$ = make(AND, 0, "");
         attach($$, $1);
         attach($$, $3);
@@ -470,13 +478,13 @@ void yyerror(const char* str){
 /*
  * Makes a new tree node for new tree element
  */
-struct node* make(int type, double value, char* id) {
+struct node* make(int type, double data, char* id) {
     int i;
 
     struct node* node = malloc(sizeof(struct node));
 
     node->type = type;
-    node->data = value;
+    node->data = data;
     strcpy(node->id, id);
     node->children_num = 0;
     for(i = 0; i < CHLDRN; i++) {
@@ -511,9 +519,9 @@ double get(char* name){
 /*
  * Adds data to table elements
  */
-void add(char* name, double value){
+void add(char* name, double data){
     strcpy(table[numSymbols].name, name);
-    table[numSymbols].data = value;
+    table[numSymbols].data = data;
     numSymbols++;
 }
 
