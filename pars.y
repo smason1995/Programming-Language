@@ -26,8 +26,8 @@
     /* node structure */
     typedef struct node{
         int type;
-        double data;
-//        data* value;
+        //double data;
+        data value;
         char id[SIZE];
         int children_num;
         struct node* children[CHLDRN];
@@ -453,6 +453,9 @@ term5: NOT term5 {
 term6: VAL {
         $$ = make(VAL, $1, "");
     } 
+    | STRING {
+        $$ = makeStr(STRING, $1, "");
+    }
     | VAR {
         $$ = make(IDENTIFIER, 0, $1);
     } 
@@ -484,7 +487,7 @@ struct node* make(int type, double data, char* id) {
     struct node* node = malloc(sizeof(struct node));
 
     node->type = type;
-    node->data = data;
+    node->value.numval = data;
     strcpy(node->id, id);
     node->children_num = 0;
     for(i = 0; i < CHLDRN; i++) {
@@ -494,6 +497,24 @@ struct node* make(int type, double data, char* id) {
     return node;
 }
 
+/*
+ * Makes a new tree node for new tree element
+ */
+struct node* makeStr(int type, char str[], char* id) {
+    int i;
+
+    struct node* node = malloc(sizeof(struct node));
+
+    node->type = type;
+    strcpy(node->value.strval, str);
+    strcpy(node->id, id);
+    node->children_num = 0;
+    for(i = 0; i < CHLDRN; i++) {
+        node->children[i] = NULL;
+    }
+
+    return node;
+}
 /*
  * Attaches child to parent
  */
@@ -538,21 +559,24 @@ int inTable(char* name){
 /*
  * Processes statements that need to return things
  */
-double evalExpression(struct node* node){
+data evalExpression(struct node* node){
     int b;
     double z[2];
     double d;
     switch(node->type) {
-        case IDENTIFIER: 
-                return get(node->id);
-                break;
+//        case IDENTIFIER: 
+//                return get(node->id);
+//                break;
         case VAL: 
-                return node->data;
+                return node->value;
                 break;
-        case PLUS: 
+        case STRING:
+                return node->value;
+                break;
+/*       case PLUS: 
                 for(b=0; b<node->children_num; b++){
                     z[b] = evalExpression(node->children[b]);
-                }
+               }
                 return z[0] + z[1];
                 break;
         case MINUS: 
@@ -631,7 +655,7 @@ double evalExpression(struct node* node){
 			    printf("Input Value: ");
 				scanf("%lg", &d);
 				return d;
-				break;
+				break;*/
         default:
                 printf("Error, %d not a valid node type for an expression.\n", node->type);
                 exit(1);
@@ -643,11 +667,19 @@ double evalExpression(struct node* node){
  */
 void evalStatement(struct node* node){
 	int x;
+	data val;
     switch(node->type){
         case PRINT:  
-            printf("%9.6f\n",evalExpression(node->children[0]));
+            if(node->children[0]->type == VAL){
+                val = evalExpression(node->children[0]);
+                printf("%9.6f\n", val.numval);
+            }
+            else if(node->children[0]->type == STRING){
+                val = evalExpression(node->children[0]);
+                printf("%s\n", val.strval);
+            }
             break;
-        case IF: 
+/*        case IF: 
             if(evalExpression(node->children[0])){
                 evalStatement(node->children[1]);
             }
@@ -674,7 +706,7 @@ void evalStatement(struct node* node){
             else{
                 add(node->children[0]->id, evalExpression(node->children[1]));
             }
-            break;
+            break;*/
 
         default:
             printf("Error, %d not a valid node type for a statement.\n", node->type);
